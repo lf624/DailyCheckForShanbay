@@ -38,3 +38,5 @@ build/
 .DS_Store
 
 src/main/resources/cookie.properties
+src/main/resources/wxpusher.properties
+dependency-reduced-pom.xml
