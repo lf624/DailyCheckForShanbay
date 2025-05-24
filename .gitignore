@@ -40,3 +40,4 @@ build/
 src/main/resources/cookie.properties
 src/main/resources/wxpusher.properties
 dependency-reduced-pom.xml
+src/main/resources/mail.properties

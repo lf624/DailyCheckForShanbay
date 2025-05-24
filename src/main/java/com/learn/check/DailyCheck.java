@@ -1,18 +1,19 @@
-import com.alibaba.fastjson2.JSON;
+package com.learn.check;
+
 import com.alibaba.fastjson2.JSONObject;
-import utils.HttpClientUtil;
+import com.learn.check.utils.HttpClientUtil;
+import com.learn.check.utils.NotifyUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public class DailyCheck {
     public static final String CHECKIN = "https://apiv3.shanbay.com/uc/checkin";
-    public static final String WXPUSH = "https://wxpusher.zjiecode.com/api/send/message";
 
     public static String checkStatus() throws IOException {
+        // 在resources文件夹下新建cookie.properties文件，将浏览器登录后的cookie复制到文件中
         Properties properties = new Properties();
         properties.load(ClassLoader.getSystemResourceAsStream("cookie.properties"));
         Map<String, String> cookie = new HashMap<>();
@@ -29,25 +30,18 @@ public class DailyCheck {
         return status;
     }
 
-    public static void sendWxMessage(String content) throws IOException{
-        Properties properties = new Properties();
-        properties.load(ClassLoader.getSystemResourceAsStream("wxpusher.properties"));
-        Map<String, Object> body = new HashMap<>();
-        body.put("appToken", properties.get("appToken"));
-        body.put("uids", List.of(properties.get("uid")));
-        body.put("content", content);
-        body.put("summary", "扇贝打卡提醒");
-        body.put("contentType", 1);
-        String json = JSON.toJSONString(body);
-        String result = HttpClientUtil.doPost(WXPUSH, json);
-        JSONObject jsonObject = JSONObject.parseObject(result);
-        if(!"1000".equals(jsonObject.getString("code")))
-            throw new RuntimeException(result);
-    }
-
     public static void main(String[] args) throws Exception {
-        String status = checkStatus();
-        if(!"HAVE_CHECKIN".equals(status))
-            sendWxMessage(status);
+        String status = "";
+        try {
+            status = checkStatus();
+        } catch (Exception e) {
+            NotifyUtil.sendWxMessage(e.getMessage());
+            NotifyUtil.sendMail("ShanbayDailCheck Exception", e.getMessage());
+            throw new RuntimeException(e);
+        }
+        if(!"HAVE_CHECKIN".equals(status)) {
+            NotifyUtil.sendMail(null, status);
+            NotifyUtil.sendWxMessage(status);
+        }
     }
 }

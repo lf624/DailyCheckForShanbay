@@ -1,4 +1,4 @@
-package utils;
+package com.learn.check.utils;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -29,9 +29,9 @@ public class HttpClientUtil {
             httpGet.setHeader("Cookie", cookieHeader);
             HttpContext context = null;
             result = client.execute(httpGet, response -> {
-                if(response.getCode() == 200)
-                    return EntityUtils.toString(response.getEntity());
-                return "";
+                //if(response.getCode() == 200)
+                return EntityUtils.toString(response.getEntity());
+                //return "";
             });
         } catch (IOException e) {
             log.error(e.getMessage());
